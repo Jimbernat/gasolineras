@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gasolineras — Precios en tiempo real</title>
+<meta name="description" content="Mapa de precios de carburantes en España, actualizado cada 30 minutos con datos del Ministerio.">
+<meta name="theme-color" content="#0f172a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛽</text></svg>">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">⛽ <b>Gasolineras</b></div>
+  <select id="fuel" aria-label="Combustible">
+    <option value="g95">Gasolina 95 E5</option>
+    <option value="g98">Gasolina 98 E5</option>
+    <option value="goa">Gasóleo A</option>
+    <option value="gop">Gasóleo Premium</option>
+    <option value="glp">GLP</option>
+    <option value="gnc">GNC</option>
+  </select>
+  <select id="province" aria-label="Provincia"><option value="">Toda España</option></select>
+  <button id="locate" title="Cerca de mí">📍 Cerca de mí</button>
+  <span id="meta" class="meta">Cargando…</span>
+</header>
+
+<main class="layout">
+  <div id="map"></div>
+  <aside class="panel">
+    <div class="stats">
+      <div class="stat"><span class="v" id="avg">—</span><span class="l">Media</span><span class="d" id="delta"></span></div>
+      <div class="stat good"><span class="v" id="min">—</span><span class="l">Mínimo</span><span class="d" id="minWhere"></span></div>
+      <div class="stat bad"><span class="v" id="max">—</span><span class="l">Máximo</span><span class="d" id="maxWhere"></span></div>
+    </div>
+    <div class="legend" aria-label="Precio relativo a la media">
+      <span><i class="c0"></i>&lt; −5%</span><span><i class="c1"></i>−2/−5%</span><span><i class="c2"></i>±2%</span><span><i class="c3"></i>+2/+5%</span><span><i class="c4"></i>&gt; +5%</span>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button data-tab="screen" class="on">En pantalla</button>
+      <button data-tab="near">Cerca de mí</button>
+      <button data-tab="favs">Favoritas</button>
+    </nav>
+    <ol id="list" class="list"></ol>
+    <footer class="foot">Fuente: <a href="https://geoportalgasolineras.es" target="_blank" rel="noopener">Ministerio para la Transición Ecológica</a> · se actualiza cada 30 min</footer>
+  </aside>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
