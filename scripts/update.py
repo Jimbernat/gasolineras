@@ -71,7 +71,10 @@ def main():
     fecha = datetime.datetime.strptime(raw["Fecha"], "%d/%m/%Y %H:%M:%S")
     out = {"fecha": raw["Fecha"], "fuels": list(FUELS), "provinces": provinces, "stations": stations}
     DATA.mkdir(exist_ok=True)
-    (DATA / "stations.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
+    # Una estación por línea: entre actualizaciones solo cambian unas líneas y git guarda diferencias pequeñas
+    head = json.dumps({k: v for k, v in out.items() if k != "stations"}, ensure_ascii=False, separators=(",", ":"))[:-1]
+    body = ",\n".join(json.dumps(s, ensure_ascii=False, separators=(",", ":")) for s in stations)
+    (DATA / "stations.json").write_text(f'{head},"stations":[\n{body}\n]}}\n')
 
     # Histórico: media diaria por combustible (España y por provincia), se sobrescribe el día en curso
     hist_path = DATA / "history.json"
