@@ -1,5 +1,5 @@
 """Descarga precios del Ministerio y genera data/stations.json (compacto) + data/history.json (medias diarias)."""
-import json, statistics, urllib.request, datetime, pathlib, sys
+import json, statistics, urllib.request, urllib.error, datetime, pathlib, sys, time
 
 API = "https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/"
 FUELS = {  # clave corta -> campo de la API
@@ -22,13 +22,26 @@ def in_spain(lat, lon):
     return 27 <= lat <= 44.5 and -18.5 <= lon <= 4.5
 
 
+def fetch():
+    req = urllib.request.Request(API, headers={"Accept": "application/json", "User-Agent": "Mozilla/5.0 (gasolineras-app)"})
+    for intento in range(1, 4):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                return json.load(r)
+        except urllib.error.HTTPError as e:
+            err = f"HTTP {e.code} {e.reason}: {e.read()[:200]!r}"
+        except Exception as e:
+            err = f"{type(e).__name__}: {e}"
+        print(f"::warning::Intento {intento} fallido — {err}")  # visible en GitHub sin iniciar sesión
+        time.sleep(20 * intento)
+    raise SystemExit(f"::error::No se pudo descargar la API del Ministerio — {err}")
+
+
 def main():
     if len(sys.argv) > 1:  # uso local: python3 update.py raw.json
         raw = json.loads(pathlib.Path(sys.argv[1]).read_text())
     else:
-        req = urllib.request.Request(API, headers={"Accept": "application/json", "User-Agent": "gasolineras-app"})
-        with urllib.request.urlopen(req, timeout=120) as r:
-            raw = json.load(r)
+        raw = fetch()
     if raw.get("ResultadoConsulta") != "OK":
         raise SystemExit(f"API error: {raw.get('ResultadoConsulta')}")
 
