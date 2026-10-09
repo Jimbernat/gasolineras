@@ -11,7 +11,7 @@ const store = {
 };
 
 const state = {
-  data: null, history: {}, fuel: store.get("fuel", "g95"), province: store.get("province", "38"),
+  data: null, history: {}, fuel: store.get("fuel", "goa"), province: store.get("province", "38"),
   tab: "screen", me: null, favs: new Set(store.get("favs", [])), rows: [], mean: 0,
 };
 
