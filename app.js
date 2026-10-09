@@ -11,7 +11,7 @@ const store = {
 };
 
 const state = {
-  data: null, history: {}, fuel: store.get("fuel", "g95"), province: store.get("province", ""),
+  data: null, history: {}, fuel: store.get("fuel", "g95"), province: store.get("province", "38"),
   tab: "screen", me: null, favs: new Set(store.get("favs", [])), rows: [], mean: 0,
 };
 
@@ -60,6 +60,7 @@ async function load() {
   $("fuel").value = state.fuel; sel.value = state.province;
   $("meta").textContent = `${st.stations.length.toLocaleString("es")} gasolineras · ${st.fecha}`;
   render(true);
+  autoLocate();
 }
 
 function render(fit) {
@@ -132,6 +133,27 @@ document.addEventListener("click", (e) => {
   b.textContent = state.favs.has(id) ? "★ Quitar" : "☆ Favorita";
   if (state.tab === "favs") renderList();
 });
+
+// --- Geolocalización -------------------------------------------------------
+function autoLocate() {
+  if (!navigator.geolocation || state.province !== "38") return;
+  navigator.geolocation.getCurrentPosition((pos) => {
+    const [lat, lon] = [pos.coords.latitude, pos.coords.longitude];
+    let nearest = state.data.stations[0];
+    let minDist = km([lat, lon], [nearest[1], nearest[2]]);
+    for (const s of state.data.stations) {
+      const dist = km([lat, lon], [s[1], s[2]]);
+      if (dist < minDist) { nearest = s; minDist = dist; }
+    }
+    const prov = String(nearest[6]);
+    if (prov !== state.province) {
+      state.province = prov;
+      store.set("province", prov);
+      $("province").value = prov;
+      render(true);
+    }
+  }, () => {}, { enableHighAccuracy: false, timeout: 5000 });
+}
 
 // --- Lista lateral ----------------------------------------------------------
 function km(a, b) {
